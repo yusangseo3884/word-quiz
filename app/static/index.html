@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>단어 퀴즈</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>📚 단어 퀴즈</h1>
+      <nav class="tabs">
+        <button class="tab active" data-tab="quiz">퀴즈</button>
+        <button class="tab" data-tab="words">단어장 <span id="word-count" class="badge">0</span></button>
+      </nav>
+    </header>
+
+    <!-- 퀴즈 화면 -->
+    <section id="tab-quiz" class="panel">
+      <div class="score">
+        <span>맞힘 <strong id="score-correct">0</strong></span>
+        <span>푼 문제 <strong id="score-total">0</strong></span>
+        <span>연속 정답 <strong id="score-streak">0</strong></span>
+      </div>
+
+      <div id="quiz-empty" class="empty" hidden>
+        아직 단어가 없습니다. <b>단어장</b> 탭에서 단어를 추가해주세요.
+      </div>
+
+      <div id="quiz-box" hidden>
+        <p class="quiz-label">이 단어의 뜻은?</p>
+        <p id="quiz-word" class="quiz-word"></p>
+        <form id="answer-form" class="row">
+          <input id="answer-input" type="text" placeholder="뜻을 입력하세요" autocomplete="off" required>
+          <button type="submit">확인</button>
+        </form>
+        <p id="quiz-result" class="result" hidden></p>
+        <button id="next-btn" class="secondary" hidden>다음 문제 →</button>
+      </div>
+    </section>
+
+    <!-- 단어장 화면 -->
+    <section id="tab-words" class="panel" hidden>
+      <form id="word-form" class="row">
+        <input id="word-input" type="text" placeholder="단어 (예: apple)" autocomplete="off" required>
+        <input id="meaning-input" type="text" placeholder="뜻 (예: 사과, 능금)" autocomplete="off" required>
+        <button type="submit">추가</button>
+      </form>
+      <p class="hint">뜻이 여러 개면 쉼표(,)로 구분하세요. 퀴즈에서 하나만 맞혀도 정답입니다.</p>
+      <p id="word-error" class="error" hidden></p>
+
+      <table>
+        <thead>
+          <tr><th>단어</th><th>뜻</th><th>맞힘</th><th>틀림</th><th></th></tr>
+        </thead>
+        <tbody id="word-list"></tbody>
+      </table>
+      <div id="words-empty" class="empty" hidden>등록된 단어가 없습니다.</div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
