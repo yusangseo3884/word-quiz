@@ -1,0 +1,42 @@
+# 코드를 push하면 Docker 이미지를 만들어 GitHub 이미지 창고(GHCR)에 올리는 자동화 설정
+
+name: Docker 이미지 빌드 & GHCR 업로드
+
+# 언제 실행할지
+on:
+  push:
+    branches: [ main ]      # main 브랜치에 push할 때
+  workflow_dispatch:         # GitHub 화면에서 버튼으로 직접 실행할 때
+
+jobs:
+  build-and-push:
+    # 어디서 실행할지: GitHub이 빌려주는 우분투 리눅스 컴퓨터
+    runs-on: ubuntu-latest
+
+    # 이 작업에 줄 권한
+    permissions:
+      contents: read         # 코드 읽기
+      packages: write        # 이미지 창고에 쓰기
+
+    steps:
+      # 1. 저장소 코드를 임시 컴퓨터로 내려받기
+      - name: 코드 내려받기
+        uses: actions/checkout@v4
+
+      # 2. GHCR에 로그인 (토큰은 GitHub이 자동으로 발급해줌)
+      - name: GHCR 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3. Dockerfile로 이미지를 만들어 GHCR에 업로드
+      - name: 이미지 빌드 & 업로드
+        uses: docker/build-push-action@v6
+        with:
+          context: .         # Dockerfile이 있는 폴더
+          push: true         # 빌드 후 업로드까지
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
