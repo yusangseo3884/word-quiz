@@ -1,0 +1,11 @@
+# 단어장 데이터를 담을 저장 공간 요청서 (Docker의 volume에 해당)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: word-quiz-data
+spec:
+  accessModes:
+    - ReadWriteOnce      # 한 노드에서만 읽기/쓰기
+  resources:
+    requests:
+      storage: 1Gi       # 1GB 요청

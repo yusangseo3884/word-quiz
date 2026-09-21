@@ -1,0 +1,19 @@
+# 파드로 들어가는 고정 접속 창구
+#
+# 로컬(kind) 환경에서는 진짜 로드밸런서를 만들어줄 클라우드가 없으므로
+# 클러스터 내부용(ClusterIP)으로 두고, 접속은 kubectl port-forward로 한다.
+#   kubectl port-forward svc/word-quiz 8000:8000
+#
+# 8일차 AWS(EKS)에서는 아래 type을 LoadBalancer로 바꾸면
+# AWS가 실제 로드밸런서와 외부 접속 주소를 자동으로 만들어준다.
+apiVersion: v1
+kind: Service
+metadata:
+  name: word-quiz
+spec:
+  type: ClusterIP        # 클러스터 내부 전용 고정 주소
+  selector:
+    app: word-quiz       # 이 label을 가진 파드로 요청을 전달
+  ports:
+    - port: 8000         # 서비스 포트
+      targetPort: 8000   # 파드 안의 앱 포트

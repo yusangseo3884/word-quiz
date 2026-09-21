@@ -1,0 +1,55 @@
+# 앱 파드를 몇 개, 어떤 이미지로 띄울지 정하는 설정
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: word-quiz
+spec:
+  replicas: 1                 # 유지할 파드 개수
+  strategy:
+    type: Recreate            # 저장 공간을 한 파드만 쓸 수 있으므로, 새로 만들기 전에 기존 것을 먼저 종료
+  selector:
+    matchLabels:
+      app: word-quiz          # 아래 label과 짝이 맞아야 함 (이 Deployment가 관리할 파드 표시)
+  template:                   # 여기서부터가 "파드 설계도"
+    metadata:
+      labels:
+        app: word-quiz
+    spec:
+      securityContext:
+        runAsUser: 1000       # 이미지에서 만든 appuser
+        fsGroup: 1000         # 저장 공간을 appuser가 쓸 수 있게 권한 맞추기
+      containers:
+        - name: app
+          image: ghcr.io/yusangseo3884/word-quiz:latest
+          imagePullPolicy: Always      # 항상 최신 이미지를 받아옴
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DB_PATH
+              value: /data/words.db
+          volumeMounts:
+            - name: data
+              mountPath: /data         # 저장 공간을 /data에 연결
+          readinessProbe:              # 손님을 받아도 되는 상태인지 확인
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:               # 살아 있는지 확인 (실패하면 컨테이너 재시작)
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:                  # 최소한 이만큼은 보장받고 싶다
+              cpu: 50m
+              memory: 64Mi
+            limits:                    # 이 이상은 쓰지 않겠다
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: word-quiz-data  # pvc.yaml에서 만든 저장 공간
